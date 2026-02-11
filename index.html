@@ -43,7 +43,7 @@
         radial-gradient(1200px 700px at 20% 20%, #ff4d6d55, transparent 60%),
         radial-gradient(900px 600px at 80% 30%, #7c3aed55, transparent 55%),
         linear-gradient(160deg, var(--bg1), var(--bg2));
-      overflow-x:hidden; /* prevent HP miring karena overflow */
+      overflow-x:hidden;
     }
 
     /* floating sparkles across whole page */
@@ -124,8 +124,19 @@
       padding:18px;
       place-items:center;
       z-index:10;
+
+      /* ✅ FIX HP: kalo konten lebih tinggi dari layar -> bisa scroll */
+      overflow:auto;
+      -webkit-overflow-scrolling: touch;
     }
     .screen.active{display:grid;}
+
+    /* ✅ jar screen jangan dipaksa center vertikal (biar ga kepotong) */
+    #jarScreen.active{
+      place-items:start center;
+      padding-top:16px;
+      padding-bottom:28px;
+    }
 
     /* Start */
     .startBox{width:min(560px, 92vw); text-align:center;}
@@ -178,24 +189,29 @@
       display:grid;
       grid-template-columns: 1.1fr .9fr;
       gap:22px;
-      align-items:center;
-      margin:auto;
+      align-items:start; /* ✅ biar kiri/kanan mulai dari atas */
+      margin:0 auto;
       position:relative;
       z-index:2;
+
+      /* ✅ kasih napas kiri-kanan biar ga mentok di HP / tablet */
+      padding: 0 clamp(6px, 2vw, 20px);
     }
 
-    /* ===== Responsive Jar System (NO MIRING) ===== */
+    /* ===== Responsive Jar System ===== */
     .jarStage{
-      /* jar dimensions adapt */
       --jarW: clamp(300px, 82vw, 440px);
       --jarH: calc(var(--jarW) * 1.28);
 
       position:relative;
       width: var(--jarW);
-      height: calc(var(--jarH) + 170px); /* room for cap/ribbon */
+      height: calc(var(--jarH) + 170px);
       display:block;
       z-index:2;
       margin-inline:auto;
+
+      /* ✅ jar ga nempel kanan */
+      margin-right: clamp(0px, 1vw, 14px);
     }
 
     /* cap */
@@ -256,7 +272,7 @@
       opacity:.9;
     }
 
-    /* 3D bow */
+    /* bow */
     .bow{
       position:absolute;
       left:50%;
@@ -429,7 +445,7 @@
       animation-duration: 3.4s;
     }
 
-    /* hearts area: safe padding, NO CLIP (so never cut) */
+    /* hearts area */
     .jarFill{
       position:absolute;
       inset:0;
@@ -448,13 +464,13 @@
       box-shadow: inset 0 0 0 1px #ffffff0f;
     }
 
-    /* ✅ FIX: 5 per baris, hearts lebih gede */
+    /* ✅ love rapi + adaptif */
     .heartsGrid{
       width:100%;
       height:100%;
       display:grid;
-      grid-template-columns: repeat(5, 1fr); /* FIX 5 per baris */
-      gap:12px;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: clamp(8px, 1.6vw, 12px);
       align-content:start;
     }
 
@@ -468,16 +484,18 @@
       cursor:pointer;
       display:grid;
       place-items:center;
-      transition: transform .12s ease, background .12s ease, opacity .12s ease;
+      transition: transform .12s ease, background .12s ease, filter .12s ease;
     }
     .heartBtn:hover{transform: translateY(-2px); background:#ffffff2f}
     .heartBtn:active{transform: translateY(0px) scale(.99)}
-    .heartBtn.opened{opacity:.45}
+    .heartBtn.opened{
+      opacity:1;
+      filter: grayscale(.35) brightness(.88);
+    }
 
-    /* ✅ bigger heart icon */
     .heartIcon{
-      width:40px;
-      height:40px;
+      width: min(44px, 9vw);
+      height: min(44px, 9vw);
       position:relative;
       transform: rotate(45deg);
       background: var(--c, #ff4d6d);
@@ -486,31 +504,31 @@
     .heartIcon::before,.heartIcon::after{
       content:"";
       position:absolute;
-      width:40px;
-      height:40px;
+      width: 100%;
+      height: 100%;
       background: var(--c, #ff4d6d);
       border-radius:999px;
     }
-    .heartIcon::before{ left:-20px; top:0; }
-    .heartIcon::after{ left:0; top:-20px; }
+    .heartIcon::before{ left:-50%; top:0; }
+    .heartIcon::after{ left:0; top:-50%; }
 
-    /* Message modal */
+    /* Message modal (solid) */
     .msgModal{
       position:fixed; inset:0;
       display:none; place-items:center;
-      background: rgba(0,0,0,.55);
+      background: rgba(0,0,0,.72);
       padding:18px; z-index:50;
     }
     .msgModal.open{display:grid;}
     .msgCard{
       width:min(580px, 92vw);
-      background:#ffffff18;
+      background: linear-gradient(180deg, #1a0a21, #120818);
       border:1px solid #ffffff2f;
       border-radius:22px;
-      box-shadow: var(--shadow);
+      box-shadow: 0 30px 90px rgba(0,0,0,.55);
       padding:18px 18px 16px;
       animation: pop .18s ease-out;
-      backdrop-filter: blur(10px);
+      backdrop-filter: none;
     }
     .msgTop{display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:10px}
     .msgTop h2{margin:0; font-size:18px; font-weight:900}
@@ -523,21 +541,34 @@
         grid-template-columns: 1fr;
         gap:14px;
       }
-      .jarStage{
-        height: calc((var(--jarW) * 1.28) + 190px);
-        margin-top: 4px;
-      }
+
+      /* ✅ card jangan kejauhan + text rapi */
       .card{ padding:16px; }
-      .stat{margin-left:0}
+      #jarTitle{ margin-top:0; }
+
+      /* ✅ jar center dan ga kepotong */
+      .jarStage{
+        margin: 8px auto 0;
+        width: min(440px, 94vw);
+        --jarW: min(440px, 94vw);
+      }
     }
 
-    @media (max-width: 380px){
-      .jarStage{ --jarW: clamp(280px, 88vw, 340px); }
-      .heartsGrid{ gap:10px; }
-      .heartIcon{ width:38px; height:38px; border-radius:11px; }
-      .heartIcon::before,.heartIcon::after{ width:38px; height:38px; }
-      .heartIcon::before{ left:-19px; }
-      .heartIcon::after{ top:-19px; }
+    @media (max-width: 420px){
+      /* ✅ biar aman di HP kecil */
+      #jarScreen.active{ padding-top:12px; }
+
+      .heartsGrid{
+        gap:10px;
+      }
+      .heartBtn{
+        border-radius:14px;
+      }
+      .heartIcon{
+        width: min(42px, 10.5vw);
+        height: min(42px, 10.5vw);
+        border-radius: 11px;
+      }
     }
   </style>
 </head>
@@ -751,12 +782,11 @@
       }
     }
 
-    /* ✅ FIX: 30 hearts only, 5 per row */
     function renderHearts(){
       const count = 30;
       const cols = 5;
 
-      heartsEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+      heartsEl.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
       heartsEl.innerHTML = "";
 
       assigned = Array.from({length: count}, (_, i) => i % MESSAGES.length);
@@ -793,7 +823,7 @@
     function enterJar(){
       jarTitle.textContent = `💌 Jar Of Love For ${userName || "kamu"}`;
       jarDesc.textContent  = `sayangku ${userName || "kamu"}, banyak momen kecil yang kalau diinget selalu berhasil bikin aku senyum sendiri. makasih ya udah selalu ada dan bikin semuanya kerasa lebih nyaman. semoga ke depan kita tetap saling ngertiin, saling introspeksi diri kalau emang ada hal yang salah, dan selalu saling sayang. aku senang banget bisa sampai di titik ini sama kamu. i love u so much sayangku ${userName || "kamu"} <3. tiap love di jar ini punya pesan yang beda, jadi setiap kali kamu buka semoga selalu ada hal kecil yang bikin kamu senyum lagi.`;
-      document.title = `🎀 Jar Of Love — ${userName || "monthsary"}`;
+      document.title = `Jar Of Love`;
 
       showScreen(jarScreen);
       opened = new Set();
@@ -827,12 +857,10 @@
       renderHearts();
     });
 
-    /* ✅ keep sparkles responsive, hearts stay 30 (no rerender on resize) */
     window.addEventListener("resize", () => {
       buildPageSparkles();
       if (jarScreen.classList.contains("active")){
         buildJarSparkles();
-        // renderHearts(); // intentionally disabled
       }
     });
 
