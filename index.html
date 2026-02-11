@@ -34,9 +34,9 @@
     }
 
     *{box-sizing:border-box}
+    html,body{height:100%;}
     body{
       margin:0;
-      min-height:100vh;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
       color:var(--text);
       background:
@@ -124,19 +124,9 @@
       padding:18px;
       place-items:center;
       z-index:10;
-
-      /* ✅ FIX HP: kalo konten lebih tinggi dari layar -> bisa scroll */
-      overflow:auto;
-      -webkit-overflow-scrolling: touch;
+      overflow:auto; /* ✅ biar kalau konten tinggi, bisa scroll */
     }
     .screen.active{display:grid;}
-
-    /* ✅ jar screen jangan dipaksa center vertikal (biar ga kepotong) */
-    #jarScreen.active{
-      place-items:start center;
-      padding-top:16px;
-      padding-bottom:28px;
-    }
 
     /* Start */
     .startBox{width:min(560px, 92vw); text-align:center;}
@@ -189,13 +179,13 @@
       display:grid;
       grid-template-columns: 1.1fr .9fr;
       gap:22px;
-      align-items:start; /* ✅ biar kiri/kanan mulai dari atas */
-      margin:0 auto;
+      align-items:center;
+      margin:auto;
       position:relative;
       z-index:2;
 
-      /* ✅ kasih napas kiri-kanan biar ga mentok di HP / tablet */
-      padding: 0 clamp(6px, 2vw, 20px);
+      /* ✅ biar jar gak mentok kanan di layar besar */
+      padding: 10px 10px 18px;
     }
 
     /* ===== Responsive Jar System ===== */
@@ -209,9 +199,6 @@
       display:block;
       z-index:2;
       margin-inline:auto;
-
-      /* ✅ jar ga nempel kanan */
-      margin-right: clamp(0px, 1vw, 14px);
     }
 
     /* cap */
@@ -272,7 +259,7 @@
       opacity:.9;
     }
 
-    /* bow */
+    /* 3D bow */
     .bow{
       position:absolute;
       left:50%;
@@ -459,18 +446,21 @@
       border-radius: 48px 48px 96px 96px;
       background: #ffffff14;
       border:1px solid #ffffff2a;
-      padding:14px;
+
+      /* ✅ padding adaptif biar love ga nempel pinggir */
+      padding: clamp(14px, 2.6vw, 22px);
+
       display:flex;
       box-shadow: inset 0 0 0 1px #ffffff0f;
     }
 
-    /* ✅ love rapi + adaptif */
+    /* ✅ 5 per row tetap, tapi gap adaptif + lebih lega */
     .heartsGrid{
       width:100%;
       height:100%;
       display:grid;
       grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: clamp(8px, 1.6vw, 12px);
+      gap: clamp(10px, 2.2vw, 18px);
       align-content:start;
     }
 
@@ -484,22 +474,31 @@
       cursor:pointer;
       display:grid;
       place-items:center;
-      transition: transform .12s ease, background .12s ease, filter .12s ease;
+
+      /* ✅ kasih ruang internal biar icon ga mepet */
+      padding: clamp(6px, 1.2vw, 10px);
+
+      transition: transform .12s ease, background .12s ease, opacity .12s ease, filter .12s ease;
     }
-    .heartBtn:hover{transform: translateY(-2px); background:#ffffff2f}
+    .heartBtn:hover{transform: translateY(-2px); background:#ffffff2f; filter: brightness(1.03);}
     .heartBtn:active{transform: translateY(0px) scale(.99)}
+
+    /* ✅ opened: jangan transparan, cuma redup */
     .heartBtn.opened{
       opacity:1;
       filter: grayscale(.35) brightness(.88);
     }
 
-    .heartIcon{
-      width: min(44px, 9vw);
-      height: min(44px, 9vw);
-      position:relative;
-      transform: rotate(45deg);
-      background: var(--c, #ff4d6d);
-      border-radius: 12px;
+    /* ✅ ukuran heart adaptif supaya 5 kolom tetep lega di HP */
+.heartIcon{
+  width: clamp(22px, 5vw, 34px);
+  height: clamp(22px, 5vw, 34px);
+  position:relative;
+  transform: rotate(45deg);
+  background: var(--c, #ff4d6d);
+  border-radius: clamp(7px, 1.1vw, 10px);
+
+
     }
     .heartIcon::before,.heartIcon::after{
       content:"";
@@ -509,14 +508,14 @@
       background: var(--c, #ff4d6d);
       border-radius:999px;
     }
-    .heartIcon::before{ left:-50%; top:0; }
+    .heartIcon::before{ left: -50%; top:0; }
     .heartIcon::after{ left:0; top:-50%; }
 
     /* Message modal (solid) */
     .msgModal{
       position:fixed; inset:0;
       display:none; place-items:center;
-      background: rgba(0,0,0,.72);
+      background: rgba(0,0,0,.75);
       padding:18px; z-index:50;
     }
     .msgModal.open{display:grid;}
@@ -540,35 +539,22 @@
       .wrap{
         grid-template-columns: 1fr;
         gap:14px;
+        align-items:start;
       }
-
-      /* ✅ card jangan kejauhan + text rapi */
-      .card{ padding:16px; }
-      #jarTitle{ margin-top:0; }
-
-      /* ✅ jar center dan ga kepotong */
       .jarStage{
-        margin: 8px auto 0;
-        width: min(440px, 94vw);
-        --jarW: min(440px, 94vw);
+        margin-top: 10px;
+      }
+      .card{ padding:16px; }
+      .stat{margin-left:0}
+
+      /* ✅ biar enak dibaca di HP, dan tetap scroll */
+      .screen{
+        align-items:start;
       }
     }
 
-    @media (max-width: 420px){
-      /* ✅ biar aman di HP kecil */
-      #jarScreen.active{ padding-top:12px; }
-
-      .heartsGrid{
-        gap:10px;
-      }
-      .heartBtn{
-        border-radius:14px;
-      }
-      .heartIcon{
-        width: min(42px, 10.5vw);
-        height: min(42px, 10.5vw);
-        border-radius: 11px;
-      }
+    @media (max-width: 380px){
+      .jarStage{ --jarW: clamp(280px, 88vw, 340px); }
     }
   </style>
 </head>
@@ -598,7 +584,6 @@
 
       <form class="form" id="nameForm">
         <input class="input" id="nameInput" placeholder="Tulis nama kamu..." maxlength="24" autocomplete="name" />
-        <div class="small"></div>
         <div class="formActions">
           <button type="button" class="btn" id="nameCancel">Cancel</button>
           <button type="submit" class="btn btnPrimary">Continue</button>
@@ -612,7 +597,7 @@
     <div class="wrap">
       <section class="card">
         <h1 id="jarTitle">💌 Jar Of Love</h1>
-        <p id="jarDesc">klik love untuk membuka pesan. Love yang sudah dibuka akan jadi pudar.</p>
+        <p id="jarDesc">klik love untuk membuka pesan. Love yang sudah dibuka akan jadi redup.</p>
 
         <div class="row" style="margin-top:14px;">
           <button class="btn btnPrimary" id="resetBtn">Reset</button>
@@ -659,7 +644,7 @@
       </div>
       <p class="msg" id="msgText"></p>
       <div class="msgActions">
-        <button class="btn" id="msgCloseBtn">Close</button>
+        <button class="btn btnPrimary" id="msgCloseBtn">Close</button>
       </div>
     </div>
   </div>
@@ -716,6 +701,9 @@
       startScreen.classList.remove("active");
       jarScreen.classList.remove("active");
       el.classList.add("active");
+      // ✅ reset scroll ke atas tiap masuk screen
+      el.scrollTop = 0;
+      window.scrollTo(0,0);
     }
 
     function openNameOverlay(){
@@ -782,6 +770,7 @@
       }
     }
 
+    // 30 hearts, 5 per row
     function renderHearts(){
       const count = 30;
       const cols = 5;
@@ -816,7 +805,6 @@
 
         heartsEl.appendChild(btn);
       }
-
       updateStat();
     }
 
