@@ -122,9 +122,9 @@
       inset:0;
       display:none;
       padding:18px;
-      place-items:center;
+      place-items:center; /* ✅ default: center */
       z-index:10;
-      overflow:auto; /* ✅ biar kalau konten tinggi, bisa scroll */
+      overflow:auto;
     }
     .screen.active{display:grid;}
 
@@ -183,8 +183,6 @@
       margin:auto;
       position:relative;
       z-index:2;
-
-      /* ✅ biar jar gak mentok kanan di layar besar */
       padding: 10px 10px 18px;
     }
 
@@ -437,9 +435,15 @@
       position:absolute;
       inset:0;
       z-index:3;
-      padding: clamp(92px, 14vw, 120px) clamp(28px, 6vw, 44px) clamp(28px, 6vw, 46px) clamp(28px, 6vw, 44px);
+      padding:
+        clamp(72px, 11vw, 92px)
+        clamp(26px, 5.5vw, 44px)
+        clamp(44px, 8vw, 64px)
+        clamp(26px, 5.5vw, 44px);
       display:flex;
     }
+
+    /* ✅ kotak dalam: center + aman dari bawah */
     .fillSafeBox{
       width:100%;
       height:100%;
@@ -447,58 +451,69 @@
       background: #ffffff14;
       border:1px solid #ffffff2a;
 
-      /* ✅ padding adaptif biar love ga nempel pinggir */
-      padding: clamp(14px, 2.6vw, 22px);
+      /* ✅ bawah lebih lega biar ga mentok */
+      padding:
+        clamp(16px, 3vw, 24px)
+        clamp(14px, 2.6vw, 22px)
+        clamp(26px, 5vw, 40px);
 
       display:flex;
+      align-items:center;
+      justify-content:center;
+
       box-shadow: inset 0 0 0 1px #ffffff0f;
     }
 
-    /* ✅ 5 per row tetap, tapi gap adaptif + lebih lega */
+    /* ✅ grid auto rapih + ketengah */
     .heartsGrid{
       width:100%;
       height:100%;
       display:grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: clamp(10px, 2.2vw, 18px);
-      align-content:start;
+
+      /* auto kolom, rapih di semua ukuran */
+      grid-template-columns: repeat(auto-fit, minmax(44px, 1fr));
+
+      gap: clamp(8px, 2vw, 14px);
+
+      /* biar ga nempel atas/bawah */
+      place-content: center;
+      justify-items: center;
+      align-items: center;
     }
 
+    /* ✅ love lebih kecil */
     .heartBtn{
       width:100%;
       aspect-ratio: 1 / 1;
+
+      max-width: 52px;
+
       border:none;
       background:#ffffff24;
       border:1px solid #ffffff3a;
-      border-radius:16px;
+      border-radius:14px;
       cursor:pointer;
       display:grid;
       place-items:center;
-
-      /* ✅ kasih ruang internal biar icon ga mepet */
-      padding: clamp(6px, 1.2vw, 10px);
+      padding: 8px;
 
       transition: transform .12s ease, background .12s ease, opacity .12s ease, filter .12s ease;
     }
     .heartBtn:hover{transform: translateY(-2px); background:#ffffff2f; filter: brightness(1.03);}
     .heartBtn:active{transform: translateY(0px) scale(.99)}
 
-    /* ✅ opened: jangan transparan, cuma redup */
     .heartBtn.opened{
       opacity:1;
       filter: grayscale(.35) brightness(.88);
     }
 
-    /* ✅ ukuran heart adaptif supaya 5 kolom tetep lega di HP */
-.heartIcon{
-  width: clamp(22px, 5vw, 34px);
-  height: clamp(22px, 5vw, 34px);
-  position:relative;
-  transform: rotate(45deg);
-  background: var(--c, #ff4d6d);
-  border-radius: clamp(7px, 1.1vw, 10px);
-
-
+    .heartIcon{
+      width: 26px;
+      height: 26px;
+      position:relative;
+      transform: rotate(45deg);
+      background: var(--c, #ff4d6d);
+      border-radius: 8px;
     }
     .heartIcon::before,.heartIcon::after{
       content:"";
@@ -541,20 +556,20 @@
         gap:14px;
         align-items:start;
       }
-      .jarStage{
-        margin-top: 10px;
-      }
+      .jarStage{ margin-top: 10px; }
       .card{ padding:16px; }
       .stat{margin-left:0}
 
-      /* ✅ biar enak dibaca di HP, dan tetap scroll */
-      .screen{
-        align-items:start;
-      }
+      /* ✅ start screen tetap center, jar screen boleh start biar enak scroll */
+      #jarScreen.screen{ place-items: start center; }
+      #startScreen.screen{ place-items: center; }
     }
 
     @media (max-width: 380px){
       .jarStage{ --jarW: clamp(280px, 88vw, 340px); }
+      .heartBtn{ max-width: 48px; padding: 7px; }
+      .heartIcon{ width: 24px; height: 24px; border-radius: 7px; }
+      .heartsGrid{ grid-template-columns: repeat(auto-fit, minmax(40px, 1fr)); }
     }
   </style>
 </head>
@@ -701,7 +716,6 @@
       startScreen.classList.remove("active");
       jarScreen.classList.remove("active");
       el.classList.add("active");
-      // ✅ reset scroll ke atas tiap masuk screen
       el.scrollTop = 0;
       window.scrollTo(0,0);
     }
@@ -770,12 +784,8 @@
       }
     }
 
-    // 30 hearts, 5 per row
     function renderHearts(){
       const count = 30;
-      const cols = 5;
-
-      heartsEl.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
       heartsEl.innerHTML = "";
 
       assigned = Array.from({length: count}, (_, i) => i % MESSAGES.length);
