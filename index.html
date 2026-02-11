@@ -1,0 +1,853 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Jar of Heartfelt</title>
+
+  <style>
+    :root{
+      --bg1:#140a30;
+      --bg2:#2a0b1b;
+      --text:#fff7fb;
+      --muted:#ffe3ef;
+
+      --shadow: 0 26px 70px rgba(0,0,0,.45);
+
+      /* bright jar */
+      --jarA:#ffc1dc;
+      --jarB:#ff6fb1;
+      --jarStroke:#ffffff66;
+
+      /* cap */
+      --capA:#ffe0ef;
+      --capB:#ff86b9;
+
+      /* ribbon */
+      --ribbonA:#ff2f74;
+      --ribbonB:#ff83ae;
+      --ribbonStroke:#ffffffaa;
+
+      /* sparkles */
+      --spark1:#ffffffcc;
+      --spark2:#ffd1e6cc;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 700px at 20% 20%, #ff4d6d55, transparent 60%),
+        radial-gradient(900px 600px at 80% 30%, #7c3aed55, transparent 55%),
+        linear-gradient(160deg, var(--bg1), var(--bg2));
+      overflow-x:hidden; /* prevent HP miring karena overflow */
+    }
+
+    /* floating sparkles across whole page */
+    .sparkleLayer{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:0;
+      opacity:.9;
+    }
+    .spark{
+      position:absolute;
+      width:6px;
+      height:6px;
+      border-radius:999px;
+      background: radial-gradient(circle, var(--spark1), transparent 65%);
+      filter: blur(.2px);
+      animation: twinkle 2.4s ease-in-out infinite;
+      transform: translate(-50%, -50%);
+    }
+    .spark.big{
+      width:10px;
+      height:10px;
+      background: radial-gradient(circle, var(--spark2), transparent 65%);
+      animation-duration: 3.2s;
+    }
+    @keyframes twinkle{
+      0%,100%{ opacity:.25; transform: translate(-50%, -50%) scale(.85); }
+      50%{ opacity:.95; transform: translate(-50%, -50%) scale(1.25); }
+    }
+
+    /* UI */
+    .card{
+      background:#ffffff12;
+      border:1px solid #ffffff2a;
+      border-radius:24px;
+      padding:20px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      position:relative;
+      z-index:2;
+    }
+    .btn{
+      border:none;
+      cursor:pointer;
+      padding:12px 16px;
+      border-radius:16px;
+      border:1px solid #ffffff33;
+      background:#ffffff14;
+      color:#fff;
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+    .btnPrimary{
+      background: linear-gradient(135deg, #ff4d6d, #7c3aed);
+      border:none;
+    }
+    .input{
+      width:100%;
+      padding:12px 14px;
+      border-radius:16px;
+      border:1px solid #ffffff33;
+      background:#ffffff10;
+      color:#fff;
+      outline:none;
+      font-size:15px;
+    }
+    .input::placeholder{color:#ffe3efaa}
+    .small{color:#ffe3efcc; font-size:12px; line-height:1.45}
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .stat{color:#ffe3efdd; font-size:13px; margin-left:auto}
+
+    /* Screens */
+    .screen{
+      position:fixed;
+      inset:0;
+      display:none;
+      padding:18px;
+      place-items:center;
+      z-index:10;
+    }
+    .screen.active{display:grid;}
+
+    /* Start */
+    .startBox{width:min(560px, 92vw); text-align:center;}
+    .startBox h1{margin:0 0 8px 0; font-size: clamp(24px, 3vw, 38px);}
+    .startBox p{margin:0; color:var(--muted); line-height:1.6}
+    .startActions{margin-top:16px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap}
+
+    /* Name overlay */
+    .overlay{
+      position:fixed;
+      inset:0;
+      display:none;
+      place-items:center;
+      background: rgba(0,0,0,.55);
+      z-index:20;
+      padding:18px;
+    }
+    .overlay.open{display:grid;}
+    .modalCard{
+      width:min(520px, 92vw);
+      background:#ffffff12;
+      border:1px solid #ffffff28;
+      border-radius:22px;
+      box-shadow: var(--shadow);
+      padding:18px;
+      animation: pop .18s ease-out;
+      backdrop-filter: blur(10px);
+    }
+    @keyframes pop{
+      from{ transform: translateY(10px) scale(.98); opacity:.7;}
+      to{ transform: translateY(0) scale(1); opacity:1;}
+    }
+    .modalTop{display:flex; align-items:flex-start; justify-content:space-between; gap:12px}
+    .modalTop h2{margin:0; font-size:18px; font-weight:900}
+    .closeX{
+      border:none; cursor:pointer;
+      width:36px; height:36px;
+      border-radius:12px;
+      background:#ffffff18;
+      border:1px solid #ffffff33;
+      color:#fff;
+      font-weight:900;
+    }
+    .form{margin-top:12px; display:grid; gap:10px}
+    .formActions{display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap}
+
+    /* Layout */
+    .wrap{
+      width:min(980px, 92vw);
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:22px;
+      align-items:center;
+      margin:auto;
+      position:relative;
+      z-index:2;
+    }
+
+    /* ===== Responsive Jar System (NO MIRING) ===== */
+    .jarStage{
+      /* jar dimensions adapt */
+      --jarW: clamp(300px, 82vw, 440px);
+      --jarH: calc(var(--jarW) * 1.28);
+
+      position:relative;
+      width: var(--jarW);
+      height: calc(var(--jarH) + 170px); /* room for cap/ribbon */
+      display:block;
+      z-index:2;
+      margin-inline:auto;
+    }
+
+    /* cap */
+    .cap{
+      position:absolute;
+      left:50%;
+      transform: translateX(-50%);
+      top:44px;
+      width: calc(var(--jarW) * 0.92);
+      height: calc(var(--jarW) * 0.20);
+      border-radius: 26px 26px 34px 34px;
+      background: linear-gradient(180deg, var(--capA), var(--capB));
+      border:1px solid var(--jarStroke);
+      box-shadow: 0 18px 28px rgba(0,0,0,.28);
+      z-index:6;
+    }
+    .cap::before{
+      content:"";
+      position:absolute;
+      left:16px; right:16px; top:10px;
+      height:16px;
+      border-radius:999px;
+      background: linear-gradient(90deg, #ffffffcc, #ffffff44, #ffffffaa);
+      border:1px solid #ffffff77;
+      opacity:.9;
+    }
+    .cap::after{
+      content:"";
+      position:absolute;
+      left:26px; right:26px; bottom:10px;
+      height:10px;
+      border-radius:999px;
+      background:#00000018;
+      filter: blur(1px);
+    }
+
+    /* ribbon band */
+    .ribbonBand{
+      position:absolute;
+      left:50%;
+      transform: translateX(-50%);
+      top: calc(44px + (var(--jarW) * 0.09));
+      width: calc(var(--jarW) * 0.98);
+      height: calc(var(--jarW) * 0.085);
+      border-radius:999px;
+      background: linear-gradient(180deg, var(--ribbonA), var(--ribbonB));
+      border:1px solid var(--ribbonStroke);
+      box-shadow: 0 10px 18px rgba(0,0,0,.18);
+      z-index:7;
+      overflow:hidden;
+    }
+    .ribbonBand::before{
+      content:"";
+      position:absolute;
+      inset:7px 12px;
+      border-radius:999px;
+      background: linear-gradient(90deg, #ffffff44, transparent 30%, transparent 70%, #00000012);
+      opacity:.9;
+    }
+
+    /* 3D bow */
+    .bow{
+      position:absolute;
+      left:50%;
+      transform: translateX(-50%);
+      top: calc(44px + (var(--jarW) * 0.04));
+      width: calc(var(--jarW) * 0.34);
+      height: calc(var(--jarW) * 0.22);
+      z-index:8;
+      pointer-events:none;
+    }
+    .bow .shadow{
+      position:absolute;
+      inset:0;
+      filter: blur(10px);
+      opacity:.22;
+      background: radial-gradient(closest-side, #00000055, transparent 70%);
+      transform: translateY(10px);
+    }
+    .bow .knot{
+      position:absolute;
+      left:50%; top:40%;
+      transform: translate(-50%, -50%);
+      width: 26%;
+      aspect-ratio:1/1;
+      border-radius:12px;
+      background: linear-gradient(180deg, var(--ribbonB), var(--ribbonA));
+      border:1px solid var(--ribbonStroke);
+      box-shadow: 0 12px 18px rgba(0,0,0,.18);
+    }
+    .bow .knot::before{
+      content:"";
+      position:absolute;
+      inset:6px;
+      border-radius:10px;
+      background: linear-gradient(110deg, #ffffff45, transparent 55%, #00000014);
+      opacity:.85;
+    }
+    .bow .left,
+    .bow .right{
+      position:absolute;
+      top:24%;
+      width: 48%;
+      height: 52%;
+      background: linear-gradient(180deg, var(--ribbonB), var(--ribbonA));
+      border:1px solid var(--ribbonStroke);
+      box-shadow: 0 14px 18px rgba(0,0,0,.14);
+      overflow:hidden;
+    }
+    .bow .left{
+      left:0;
+      transform: rotate(-14deg);
+      border-radius: 34px 22px 36px 22px;
+    }
+    .bow .right{
+      right:0;
+      transform: rotate(14deg);
+      border-radius: 22px 34px 22px 36px;
+    }
+    .bow .left::before,
+    .bow .right::before{
+      content:"";
+      position:absolute;
+      inset:8px 10px;
+      border-radius:999px;
+      background: linear-gradient(90deg, #ffffff55, transparent 55%, #00000010);
+      opacity:.85;
+    }
+    .bow .tailL,
+    .bow .tailR{
+      position:absolute;
+      top:70%;
+      width: 18%;
+      height: 58%;
+      background: linear-gradient(180deg, var(--ribbonB), var(--ribbonA));
+      border:1px solid var(--ribbonStroke);
+      border-radius: 12px;
+      opacity:.98;
+      box-shadow: 0 14px 18px rgba(0,0,0,.12);
+      overflow:hidden;
+      clip-path: polygon(0 0, 100% 0, 100% 85%, 50% 100%, 0 85%);
+    }
+    .bow .tailL{ left:41%; transform: rotate(12deg); }
+    .bow .tailR{ right:41%; transform: rotate(-12deg); }
+
+    /* neck */
+    .neck{
+      position:absolute;
+      left:50%;
+      transform: translateX(-50%);
+      top: calc(44px + (var(--jarW) * 0.21));
+      width: calc(var(--jarW) * 0.74);
+      height: calc(var(--jarW) * 0.20);
+      border-radius: 20px 20px 32px 32px;
+      background: linear-gradient(180deg, #ffe6f2, #ff9ac8);
+      border:1px solid var(--jarStroke);
+      box-shadow: 0 14px 24px rgba(0,0,0,.22);
+      z-index:5;
+    }
+    .neck::before{
+      content:"";
+      position:absolute;
+      inset:10px 14px 12px 14px;
+      border-radius: 16px 16px 26px 26px;
+      background: linear-gradient(110deg, #ffffffcc, transparent 42%, transparent 78%, #00000010);
+      opacity:.55;
+      pointer-events:none;
+    }
+
+    /* jar body */
+    .jar{
+      position:absolute;
+      left:50%;
+      transform: translateX(-50%);
+      top: calc(44px + (var(--jarW) * 0.30));
+      width: var(--jarW);
+      height: var(--jarH);
+      border-radius: 74px 74px 124px 124px;
+      background: linear-gradient(180deg, var(--jarA), var(--jarB));
+      border:1px solid var(--jarStroke);
+      box-shadow: 0 30px 88px rgba(0,0,0,.38);
+      overflow:hidden;
+      z-index:2;
+    }
+
+    /* jar effects behind hearts */
+    .jarEffects{
+      position:absolute;
+      inset:12px;
+      border-radius: 68px 68px 116px 116px;
+      background:
+        radial-gradient(150px 340px at 22% 24%, #ffffffaa, transparent 62%),
+        radial-gradient(190px 340px at 82% 55%, #00000022, transparent 64%),
+        linear-gradient(115deg, #ffffff66, transparent 46%, transparent 78%, #00000022);
+      opacity:.52;
+      z-index:1;
+      pointer-events:none;
+    }
+    .jarBottomGlow{
+      position:absolute;
+      left:-20%; right:-20%;
+      bottom:-18%;
+      height:55%;
+      background:
+        radial-gradient(closest-side, #ff4d6d44, transparent 68%),
+        radial-gradient(closest-side, #7c3aed44, transparent 68%);
+      filter: blur(2px);
+      z-index:1;
+      pointer-events:none;
+    }
+
+    /* sparkles inside jar */
+    .jarSparkles{
+      position:absolute;
+      inset:0;
+      z-index:1;
+      pointer-events:none;
+      opacity:.85;
+    }
+    .jarSparkles .s{
+      position:absolute;
+      width:7px; height:7px;
+      border-radius:999px;
+      background: radial-gradient(circle, #ffffffcc, transparent 66%);
+      filter: blur(.2px);
+      animation: twinkle 2.6s ease-in-out infinite;
+    }
+    .jarSparkles .s.big{
+      width:12px; height:12px;
+      background: radial-gradient(circle, #ffd1e6cc, transparent 66%);
+      animation-duration: 3.4s;
+    }
+
+    /* hearts area: safe padding, NO CLIP (so never cut) */
+    .jarFill{
+      position:absolute;
+      inset:0;
+      z-index:3;
+      padding: clamp(92px, 14vw, 120px) clamp(28px, 6vw, 44px) clamp(28px, 6vw, 46px) clamp(28px, 6vw, 44px);
+      display:flex;
+    }
+    .fillSafeBox{
+      width:100%;
+      height:100%;
+      border-radius: 48px 48px 96px 96px;
+      background: #ffffff14;
+      border:1px solid #ffffff2a;
+      padding:14px;
+      display:flex;
+      box-shadow: inset 0 0 0 1px #ffffff0f;
+    }
+
+    /* ✅ FIX: 5 per baris, hearts lebih gede */
+    .heartsGrid{
+      width:100%;
+      height:100%;
+      display:grid;
+      grid-template-columns: repeat(5, 1fr); /* FIX 5 per baris */
+      gap:12px;
+      align-content:start;
+    }
+
+    .heartBtn{
+      width:100%;
+      aspect-ratio: 1 / 1;
+      border:none;
+      background:#ffffff24;
+      border:1px solid #ffffff3a;
+      border-radius:16px;
+      cursor:pointer;
+      display:grid;
+      place-items:center;
+      transition: transform .12s ease, background .12s ease, opacity .12s ease;
+    }
+    .heartBtn:hover{transform: translateY(-2px); background:#ffffff2f}
+    .heartBtn:active{transform: translateY(0px) scale(.99)}
+    .heartBtn.opened{opacity:.45}
+
+    /* ✅ bigger heart icon */
+    .heartIcon{
+      width:40px;
+      height:40px;
+      position:relative;
+      transform: rotate(45deg);
+      background: var(--c, #ff4d6d);
+      border-radius: 12px;
+    }
+    .heartIcon::before,.heartIcon::after{
+      content:"";
+      position:absolute;
+      width:40px;
+      height:40px;
+      background: var(--c, #ff4d6d);
+      border-radius:999px;
+    }
+    .heartIcon::before{ left:-20px; top:0; }
+    .heartIcon::after{ left:0; top:-20px; }
+
+    /* Message modal */
+    .msgModal{
+      position:fixed; inset:0;
+      display:none; place-items:center;
+      background: rgba(0,0,0,.55);
+      padding:18px; z-index:50;
+    }
+    .msgModal.open{display:grid;}
+    .msgCard{
+      width:min(580px, 92vw);
+      background:#ffffff18;
+      border:1px solid #ffffff2f;
+      border-radius:22px;
+      box-shadow: var(--shadow);
+      padding:18px 18px 16px;
+      animation: pop .18s ease-out;
+      backdrop-filter: blur(10px);
+    }
+    .msgTop{display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:10px}
+    .msgTop h2{margin:0; font-size:18px; font-weight:900}
+    .msg{margin:0; color:#fff7fb; line-height:1.6; font-size:16px; white-space:pre-wrap}
+    .msgActions{margin-top:14px; display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap}
+
+    /* ===== Mobile layout ===== */
+    @media (max-width: 860px){
+      .wrap{
+        grid-template-columns: 1fr;
+        gap:14px;
+      }
+      .jarStage{
+        height: calc((var(--jarW) * 1.28) + 190px);
+        margin-top: 4px;
+      }
+      .card{ padding:16px; }
+      .stat{margin-left:0}
+    }
+
+    @media (max-width: 380px){
+      .jarStage{ --jarW: clamp(280px, 88vw, 340px); }
+      .heartsGrid{ gap:10px; }
+      .heartIcon{ width:38px; height:38px; border-radius:11px; }
+      .heartIcon::before,.heartIcon::after{ width:38px; height:38px; }
+      .heartIcon::before{ left:-19px; }
+      .heartIcon::after{ top:-19px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="sparkleLayer" id="sparkleLayer" aria-hidden="true"></div>
+
+  <!-- START SCREEN -->
+  <div class="screen active" id="startScreen">
+    <div class="card startBox">
+      <h1>♥ JAR OF HEARTFELT ♥</h1>
+      <p>sayanggg ada jar spesial buat kamu. siap dibuka?</p>
+      <div class="startActions">
+        <button class="btn btnPrimary" id="openBtn">OPEN</button>
+      </div>
+      <p class="small" style="margin-top:12px;">by trevon d'vasco</p>
+    </div>
+  </div>
+
+  <!-- VERIFY NAME OVERLAY -->
+  <div class="overlay" id="nameOverlay" aria-hidden="true">
+    <div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="verifyTitle">
+      <div class="modalTop">
+        <h2 id="verifyTitle">Verify</h2>
+        <button class="closeX" id="nameCloseX" aria-label="Tutup">✕</button>
+      </div>
+
+      <form class="form" id="nameForm">
+        <input class="input" id="nameInput" placeholder="Tulis nama kamu..." maxlength="24" autocomplete="name" />
+        <div class="small"></div>
+        <div class="formActions">
+          <button type="button" class="btn" id="nameCancel">Cancel</button>
+          <button type="submit" class="btn btnPrimary">Continue</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- JAR SCREEN -->
+  <div class="screen" id="jarScreen">
+    <div class="wrap">
+      <section class="card">
+        <h1 id="jarTitle">💌 Jar Of Love</h1>
+        <p id="jarDesc">klik love untuk membuka pesan. Love yang sudah dibuka akan jadi pudar.</p>
+
+        <div class="row" style="margin-top:14px;">
+          <button class="btn btnPrimary" id="resetBtn">Reset</button>
+          <div class="stat" id="stat">0 / 0 dibuka</div>
+        </div>
+      </section>
+
+      <section class="jarStage" aria-label="Jar love">
+        <div class="cap" aria-hidden="true"></div>
+        <div class="ribbonBand" aria-hidden="true"></div>
+
+        <div class="bow" aria-hidden="true">
+          <div class="shadow"></div>
+          <div class="left"></div>
+          <div class="right"></div>
+          <div class="knot"></div>
+          <div class="tailL"></div>
+          <div class="tailR"></div>
+        </div>
+
+        <div class="neck" aria-hidden="true"></div>
+
+        <div class="jar" role="img" aria-label="Jar estetik dengan pita berisi love">
+          <div class="jarEffects"></div>
+          <div class="jarBottomGlow"></div>
+          <div class="jarSparkles" id="jarSparkles" aria-hidden="true"></div>
+
+          <div class="jarFill" id="jarFill">
+            <div class="fillSafeBox" id="fillSafeBox">
+              <div class="heartsGrid" id="hearts"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- MESSAGE MODAL -->
+  <div class="msgModal" id="msgModal" aria-hidden="true">
+    <div class="msgCard" role="dialog" aria-modal="true" aria-labelledby="msgTitle">
+      <div class="msgTop">
+        <h2 id="msgTitle">pesan untuk kamu!</h2>
+        <button class="closeX" id="msgCloseX" aria-label="Tutup">✕</button>
+      </div>
+      <p class="msg" id="msgText"></p>
+      <div class="msgActions">
+        <button class="btn" id="msgCloseBtn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const MESSAGES = [
+      "hai sayangku {name} <3\naku sayaaaaang banget ama kamu 224.",
+      "{name} sayang.. makasih udah jadi bagian hidup aku",
+      "aku orang yg akan selalu bangga di tiap pencapaian kamu {name} sayang",
+      "makasih {name} sayang karena udah jadi kamu. itu lebih dari kata cukup",
+      "{name} sayang.. kamu berarti banget buat aku",
+      "{name} sayang.. kamu tuh spesial banget di mata aku",
+      "{name} sayang.. aku selalu doain yang terbaik buat kamu",
+      "i love u so much, more than u know {name} <3",
+      "{name}, u're like my daily happy pill",
+      "{name} sayang.. aku bersyukur banget punya kamu",
+      "{name} sayang.. makasih udah nerima aku apa adanya",
+      "{name} kamu tuh orang yang paling aku sayang",
+      "senyum kamu manis banget tau, aku suka liat kamu senyum",
+      "i love u to the moon and back {name} sayang <3",
+    ];
+
+    const PALETTE = ["#ff2d55", "#ff4d6d", "#ff758f", "#ff9bd1", "#c084fc", "#a78bfa", "#f472b6"];
+
+    const startScreen = document.getElementById("startScreen");
+    const jarScreen   = document.getElementById("jarScreen");
+    const openBtn     = document.getElementById("openBtn");
+
+    const nameOverlay = document.getElementById("nameOverlay");
+    const nameForm    = document.getElementById("nameForm");
+    const nameInput   = document.getElementById("nameInput");
+    const nameCloseX  = document.getElementById("nameCloseX");
+    const nameCancel  = document.getElementById("nameCancel");
+
+    const jarTitle = document.getElementById("jarTitle");
+    const jarDesc  = document.getElementById("jarDesc");
+    const heartsEl = document.getElementById("hearts");
+    const resetBtn = document.getElementById("resetBtn");
+    const statEl   = document.getElementById("stat");
+
+    const sparkleLayer = document.getElementById("sparkleLayer");
+    const jarSparkles = document.getElementById("jarSparkles");
+
+    const msgModal = document.getElementById("msgModal");
+    const msgText  = document.getElementById("msgText");
+    const msgCloseX = document.getElementById("msgCloseX");
+    const msgCloseBtn = document.getElementById("msgCloseBtn");
+
+    let userName = "";
+    let opened = new Set();
+    let assigned = [];
+
+    function showScreen(el){
+      startScreen.classList.remove("active");
+      jarScreen.classList.remove("active");
+      el.classList.add("active");
+    }
+
+    function openNameOverlay(){
+      nameOverlay.classList.add("open");
+      nameOverlay.setAttribute("aria-hidden","false");
+      setTimeout(() => nameInput.focus(), 0);
+    }
+    function closeNameOverlay(){
+      nameOverlay.classList.remove("open");
+      nameOverlay.setAttribute("aria-hidden","true");
+    }
+
+    function openMsgModal(text){
+      msgText.textContent = text;
+      msgModal.classList.add("open");
+      msgModal.setAttribute("aria-hidden","false");
+    }
+    function closeMsgModal(){
+      msgModal.classList.remove("open");
+      msgModal.setAttribute("aria-hidden","true");
+    }
+
+    function formatMessage(tpl){
+      const safeName = userName || "kamu";
+      return tpl.replaceAll("{name}", safeName);
+    }
+
+    function updateStat(){
+      statEl.textContent = `${opened.size} / ${assigned.length} dibuka`;
+    }
+
+    function shuffleArray(arr){
+      for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+    function rand(min, max){ return min + Math.random()*(max-min); }
+
+    function buildPageSparkles(){
+      sparkleLayer.innerHTML = "";
+      const count = 46;
+      for(let i=0;i<count;i++){
+        const s = document.createElement("div");
+        s.className = "spark" + (Math.random() < 0.25 ? " big" : "");
+        s.style.left = rand(4, 96) + "%";
+        s.style.top  = rand(6, 94) + "%";
+        s.style.animationDelay = rand(0, 2.6).toFixed(2) + "s";
+        sparkleLayer.appendChild(s);
+      }
+    }
+
+    function buildJarSparkles(){
+      jarSparkles.innerHTML = "";
+      const count = 22;
+      for(let i=0;i<count;i++){
+        const s = document.createElement("div");
+        s.className = "s" + (Math.random() < 0.28 ? " big" : "");
+        s.style.left = rand(12, 88) + "%";
+        s.style.top  = rand(22, 92) + "%";
+        s.style.animationDelay = rand(0, 2.8).toFixed(2) + "s";
+        jarSparkles.appendChild(s);
+      }
+    }
+
+    /* ✅ FIX: 30 hearts only, 5 per row */
+    function renderHearts(){
+      const count = 30;
+      const cols = 5;
+
+      heartsEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+      heartsEl.innerHTML = "";
+
+      assigned = Array.from({length: count}, (_, i) => i % MESSAGES.length);
+      shuffleArray(assigned);
+
+      for (let i = 0; i < count; i++){
+        const btn = document.createElement("button");
+        btn.className = "heartBtn";
+        btn.type = "button";
+
+        const msgIndex = assigned[i];
+        const c = PALETTE[Math.floor(Math.random() * PALETTE.length)];
+
+        if (opened.has(i)) btn.classList.add("opened");
+
+        const icon = document.createElement("div");
+        icon.className = "heartIcon";
+        icon.style.setProperty("--c", c);
+        btn.appendChild(icon);
+
+        btn.addEventListener("click", () => {
+          openMsgModal(formatMessage(MESSAGES[msgIndex]));
+          opened.add(i);
+          btn.classList.add("opened");
+          updateStat();
+        });
+
+        heartsEl.appendChild(btn);
+      }
+
+      updateStat();
+    }
+
+    function enterJar(){
+      jarTitle.textContent = `💌 Jar Of Love For ${userName || "kamu"}`;
+      jarDesc.textContent  = `sayangku ${userName || "kamu"}, banyak momen kecil yang kalau diinget selalu berhasil bikin aku senyum sendiri. makasih ya udah selalu ada dan bikin semuanya kerasa lebih nyaman. semoga ke depan kita tetap saling ngertiin, saling introspeksi diri kalau emang ada hal yang salah, dan selalu saling sayang. aku senang banget bisa sampai di titik ini sama kamu. i love u so much sayangku ${userName || "kamu"} <3. tiap love di jar ini punya pesan yang beda, jadi setiap kali kamu buka semoga selalu ada hal kecil yang bikin kamu senyum lagi.`;
+      document.title = `🎀 Jar Of Love — ${userName || "monthsary"}`;
+
+      showScreen(jarScreen);
+      opened = new Set();
+
+      buildJarSparkles();
+      requestAnimationFrame(() => renderHearts());
+
+      closeNameOverlay();
+    }
+
+    openBtn.addEventListener("click", openNameOverlay);
+    nameCloseX.addEventListener("click", closeNameOverlay);
+    nameCancel.addEventListener("click", closeNameOverlay);
+    nameOverlay.addEventListener("click", (e) => { if (e.target === nameOverlay) closeNameOverlay(); });
+
+    nameForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const v = (nameInput.value || "").trim();
+      if (v.length < 2){
+        alert("nama minimal 2 huruf yaa sayang");
+        nameInput.focus();
+        return;
+      }
+      userName = v;
+      enterJar();
+    });
+
+    resetBtn.addEventListener("click", () => {
+      opened = new Set();
+      closeMsgModal();
+      renderHearts();
+    });
+
+    /* ✅ keep sparkles responsive, hearts stay 30 (no rerender on resize) */
+    window.addEventListener("resize", () => {
+      buildPageSparkles();
+      if (jarScreen.classList.contains("active")){
+        buildJarSparkles();
+        // renderHearts(); // intentionally disabled
+      }
+    });
+
+    msgCloseX.addEventListener("click", closeMsgModal);
+    msgCloseBtn.addEventListener("click", closeMsgModal);
+    msgModal.addEventListener("click", (e) => { if (e.target === msgModal) closeMsgModal(); });
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape"){
+        if (msgModal.classList.contains("open")) closeMsgModal();
+        if (nameOverlay.classList.contains("open")) closeNameOverlay();
+      }
+    });
+
+    buildPageSparkles();
+  </script>
+</body>
+</html>
