@@ -101,17 +101,6 @@
       background: linear-gradient(135deg, #ff4d6d, #7c3aed);
       border:none;
     }
-    .input{
-      width:100%;
-      padding:12px 14px;
-      border-radius:16px;
-      border:1px solid #ffffff33;
-      background:#ffffff10;
-      color:#fff;
-      outline:none;
-      font-size:15px;
-    }
-    .input::placeholder{color:#ffe3efaa}
     .small{color:#ffe3efcc; font-size:12px; line-height:1.45}
     .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
     .stat{color:#ffe3efdd; font-size:13px; margin-left:auto}
@@ -133,45 +122,6 @@
     .startBox h1{margin:0 0 8px 0; font-size: clamp(24px, 3vw, 38px);}
     .startBox p{margin:0; color:var(--muted); line-height:1.6}
     .startActions{margin-top:16px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap}
-
-    /* Name overlay */
-    .overlay{
-      position:fixed;
-      inset:0;
-      display:none;
-      place-items:center;
-      background: rgba(0,0,0,.55);
-      z-index:20;
-      padding:18px;
-    }
-    .overlay.open{display:grid;}
-    .modalCard{
-      width:min(520px, 92vw);
-      background:#ffffff12;
-      border:1px solid #ffffff28;
-      border-radius:22px;
-      box-shadow: var(--shadow);
-      padding:18px;
-      animation: pop .18s ease-out;
-      backdrop-filter: blur(10px);
-    }
-    @keyframes pop{
-      from{ transform: translateY(10px) scale(.98); opacity:.7;}
-      to{ transform: translateY(0) scale(1); opacity:1;}
-    }
-    .modalTop{display:flex; align-items:flex-start; justify-content:space-between; gap:12px}
-    .modalTop h2{margin:0; font-size:18px; font-weight:900}
-    .closeX{
-      border:none; cursor:pointer;
-      width:36px; height:36px;
-      border-radius:12px;
-      background:#ffffff18;
-      border:1px solid #ffffff33;
-      color:#fff;
-      font-weight:900;
-    }
-    .form{margin-top:12px; display:grid; gap:10px}
-    .formActions{display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap}
 
     /* Layout */
     .wrap{
@@ -451,7 +401,6 @@
       background: #ffffff14;
       border:1px solid #ffffff2a;
 
-      /* ✅ bawah lebih lega biar ga mentok */
       padding:
         clamp(16px, 3vw, 24px)
         clamp(14px, 2.6vw, 22px)
@@ -460,7 +409,6 @@
       display:flex;
       align-items:center;
       justify-content:center;
-
       box-shadow: inset 0 0 0 1px #ffffff0f;
     }
 
@@ -469,13 +417,8 @@
       width:100%;
       height:100%;
       display:grid;
-
-      /* auto kolom, rapih di semua ukuran */
       grid-template-columns: repeat(auto-fit, minmax(44px, 1fr));
-
       gap: clamp(8px, 2vw, 14px);
-
-      /* biar ga nempel atas/bawah */
       place-content: center;
       justify-items: center;
       align-items: center;
@@ -485,9 +428,7 @@
     .heartBtn{
       width:100%;
       aspect-ratio: 1 / 1;
-
       max-width: 52px;
-
       border:none;
       background:#ffffff24;
       border:1px solid #ffffff3a;
@@ -496,7 +437,6 @@
       display:grid;
       place-items:center;
       padding: 8px;
-
       transition: transform .12s ease, background .12s ease, opacity .12s ease, filter .12s ease;
     }
     .heartBtn:hover{transform: translateY(-2px); background:#ffffff2f; filter: brightness(1.03);}
@@ -560,7 +500,6 @@
       .card{ padding:16px; }
       .stat{margin-left:0}
 
-      /* ✅ start screen tetap center, jar screen boleh start biar enak scroll */
       #jarScreen.screen{ place-items: start center; }
       #startScreen.screen{ place-items: center; }
     }
@@ -581,29 +520,11 @@
   <div class="screen active" id="startScreen">
     <div class="card startBox">
       <h1>♥ JAR OF HEARTFELT ♥</h1>
-      <p>sayanggg ada jar spesial buat kamu. siap dibuka?</p>
+      <p>happy valentine's day sayanggg! ada jar spesial buat kamu. siap dibuka?</p>
       <div class="startActions">
         <button class="btn btnPrimary" id="openBtn">OPEN</button>
       </div>
       <p class="small" style="margin-top:12px;">by trevon d'vasco</p>
-    </div>
-  </div>
-
-  <!-- VERIFY NAME OVERLAY -->
-  <div class="overlay" id="nameOverlay" aria-hidden="true">
-    <div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="verifyTitle">
-      <div class="modalTop">
-        <h2 id="verifyTitle">Verify</h2>
-        <button class="closeX" id="nameCloseX" aria-label="Tutup">✕</button>
-      </div>
-
-      <form class="form" id="nameForm">
-        <input class="input" id="nameInput" placeholder="Tulis nama kamu..." maxlength="24" autocomplete="name" />
-        <div class="formActions">
-          <button type="button" class="btn" id="nameCancel">Cancel</button>
-          <button type="submit" class="btn btnPrimary">Continue</button>
-        </div>
-      </form>
     </div>
   </div>
 
@@ -666,36 +587,36 @@
 
   <script>
     const MESSAGES = [
-      "sayangku {name} <3\naku sayaaaaang banget ama kamuu",
-      "sayangku {name} makasih udah jadi bagian hidup aku",
-      "{name} sayang.. kamu harus tau kalau aku bakal jadi orang yg akan selalu bangga di tiap pencapaian kamu",
-      "makasih {name} sayang karena udah jadi kamu. itu lebih dari kata cukup",
-      "{name} sayang.. kamu itu berarti banget buat aku",
-      "u're my special person in my life {name}",
-      "{name} sayang.. aku selalu doain yang terbaik buat kamu",
-      "i love u so much, more than u know {name} <3",
-      "{name}, u're like my daily happy pill",
-      "sayangku {name}, aku bersyukur banget punya kamu",
-      "{name} sayang.. makasih udah nerima aku apa adanya",
-      "{name} kamu tuh orang yang paling aku sayang",
+      "sayangku aran.. aku sayaaaaang banget ama kamuu",
+      "sayangku aran makasih udah jadi bagian hidup aku",
+      "aran sayang.. kamu harus tau kalau aku bakal jadi orang yg akan selalu bangga di tiap pencapaian kamu",
+      "makasih aran sayang karena udah jadi kamu. itu lebih dari kata cukup",
+      "aran sayang.. kamu itu berarti banget buat aku",
+      "aran, u're my special person in my life",
+      "aran sayang.. aku selalu doain yang terbaik buat kamu",
+      "i love u so much, more than u know aran <3",
+      "aran, u're like my daily happy pill",
+      "sayangku aran, aku bersyukur banget punya kamu",
+      "aran sayang.. makasih udah nerima aku apa adanya",
+      "aran, kamu orang yang paling aku sayang",
       "senyum kamu manis banget tau, aku suka liat kamu senyum",
-      "i love u to the moon and back {name} sayang <3",
-      "{name} kamu selalu cantik. kalau ada yang bilang kamu jelek berarti dia boong",
-      "i hope u know how amazing and lovable u are, {name} sayang",
-      "the only thing i wanna do is keep on loving u, over and over again {name}",
-      "u're the definition of gorgeous, {name} sayang",
-      "i hope u always remember that u're so loved, {name} sayang",
-      "i'm madly in love with you {name} sayang <3",
-      "sayangku {name}, tolong cintain diri kamu sendiri juga yaa, jangan cuma cintain aku",
-      "{name} sayang, jangan sungkan minta tolong atau minta bantuan ke aku yaa, aku suka direpotin sama kamu",
+      "i love u to the moon and back aran sayang <3",
+      "aran kamu selalu cantik. kalau ada yang bilang kamu jelek berarti dia boong",
+      "i hope u know how amazing and lovable u are aran sayang",
+      "aran.. the only thing i wanna do is keep on loving u, over and over again",
+      "u're the definition of gorgeous aran sayang",
+      "i hope u always remember that u're so loved aran sayang",
+      "i'm madly in love with you aran sayang <3",
+      "sayangku aran, tolong cintain diri kamu sendiri juga yaa, jangan cuma cintain aku",
+      "aran sayang, jangan sungkan minta tolong atau minta bantuan ke aku yaa, aku suka direpotin ama kamu",
       "aku rasa keberuntungan aku selama hidup itu karena bisa ketemu kamu",
       "i hope u're always surrounded by love and happiness sayang",
       "aku selalu suka tiap hal kecil yang kamu lakuin",
-      "makasih yaa sayangku {name} aran, berkat kamu hidup aku gak begitu monoton",
+      "makasih yaa sayangku aran, berkat kamu hidup aku gak begitu monoton",
       "i'm falling for u with every part of me, not just my heart <3",
       "i'm drunkenly in love with u <3",
-      "i love u endlessly {name} sayang <3",
-      "i love u more than words can express {name} sayang <3",
+      "i love u endlessly aran sayang <3",
+      "i love u more than words can express aran sayang <3",
     ];
 
     const PALETTE = ["#ff2d55", "#ff4d6d", "#ff758f", "#ff9bd1", "#c084fc", "#a78bfa", "#f472b6"];
@@ -703,12 +624,6 @@
     const startScreen = document.getElementById("startScreen");
     const jarScreen   = document.getElementById("jarScreen");
     const openBtn     = document.getElementById("openBtn");
-
-    const nameOverlay = document.getElementById("nameOverlay");
-    const nameForm    = document.getElementById("nameForm");
-    const nameInput   = document.getElementById("nameInput");
-    const nameCloseX  = document.getElementById("nameCloseX");
-    const nameCancel  = document.getElementById("nameCancel");
 
     const jarTitle = document.getElementById("jarTitle");
     const jarDesc  = document.getElementById("jarDesc");
@@ -724,7 +639,8 @@
     const msgCloseX = document.getElementById("msgCloseX");
     const msgCloseBtn = document.getElementById("msgCloseBtn");
 
-    let userName = "";
+    // ✅ gak ada verify lagi: langsung set nama default
+    let userName = "Aran";
     let opened = new Set();
     let assigned = [];
 
@@ -734,16 +650,6 @@
       el.classList.add("active");
       el.scrollTop = 0;
       window.scrollTo(0,0);
-    }
-
-    function openNameOverlay(){
-      nameOverlay.classList.add("open");
-      nameOverlay.setAttribute("aria-hidden","false");
-      setTimeout(() => nameInput.focus(), 0);
-    }
-    function closeNameOverlay(){
-      nameOverlay.classList.remove("open");
-      nameOverlay.setAttribute("aria-hidden","true");
     }
 
     function openMsgModal(text){
@@ -757,7 +663,7 @@
     }
 
     function formatMessage(tpl){
-      const safeName = userName || "kamu";
+      const safeName = userName || "Aran";
       return tpl.replaceAll("{name}", safeName);
     }
 
@@ -835,8 +741,8 @@
     }
 
     function enterJar(){
-      jarTitle.textContent = `💌 Jar Of Love For ${userName || "kamu"}`;
-      jarDesc.textContent  = `sayangku ${userName || "kamu"}, banyak momen kecil yang kalau diinget selalu berhasil bikin aku senyum sendiri. makasih ya udah selalu ada dan bikin semuanya kerasa lebih nyaman. semoga ke depan kita tetap saling ngertiin, saling introspeksi diri kalau emang ada hal yang salah, dan selalu saling sayang. aku senang banget bisa sampai di titik ini sama kamu. i love u so much sayangku ${userName || "kamu"} <3. tiap love di jar ini punya pesan yang beda, jadi setiap kali kamu buka semoga selalu ada hal kecil yang bikin kamu senyum lagi.`;
+      jarTitle.textContent = `💌 Jar Of Love For ${userName || "Aran"}`;
+      jarDesc.textContent  = `sayangku ${userName || "Aran"}, banyak momen kecil yang kalau diinget selalu berhasil bikin aku senyum sendiri. makasih ya udah selalu ada dan bikin semuanya kerasa lebih nyaman. semoga ke depan kita tetap saling ngertiin, saling introspeksi diri kalau emang ada hal yang salah, dan selalu saling sayang. aku senang banget bisa sampai di titik ini sama kamu. i love u so much sayangku ${userName || "Aran"} <3. tiap love di jar ini punya pesan yang beda, jadi setiap kali kamu buka semoga selalu ada hal kecil yang bikin kamu senyum lagi.`;
       document.title = `Jar Of Love`;
 
       showScreen(jarScreen);
@@ -844,26 +750,10 @@
 
       buildJarSparkles();
       requestAnimationFrame(() => renderHearts());
-
-      closeNameOverlay();
     }
 
-    openBtn.addEventListener("click", openNameOverlay);
-    nameCloseX.addEventListener("click", closeNameOverlay);
-    nameCancel.addEventListener("click", closeNameOverlay);
-    nameOverlay.addEventListener("click", (e) => { if (e.target === nameOverlay) closeNameOverlay(); });
-
-    nameForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const v = (nameInput.value || "").trim();
-      if (v.length < 2){
-        alert("nama minimal 2 huruf yaa sayang");
-        nameInput.focus();
-        return;
-      }
-      userName = v;
-      enterJar();
-    });
+    // ✅ OPEN langsung masuk jar (tanpa verify)
+    openBtn.addEventListener("click", enterJar);
 
     resetBtn.addEventListener("click", () => {
       opened = new Set();
@@ -885,7 +775,6 @@
     window.addEventListener("keydown", (e) => {
       if (e.key === "Escape"){
         if (msgModal.classList.contains("open")) closeMsgModal();
-        if (nameOverlay.classList.contains("open")) closeNameOverlay();
       }
     });
 
@@ -893,5 +782,3 @@
   </script>
 </body>
 </html>
-
-
